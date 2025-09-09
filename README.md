@@ -1,8 +1,10 @@
-## 注意事项
+## 讨论方式
 - 电报群：[http://t.me/q115_strm](https://t.me/q115_strm)
 - QQ群：1057459156
 
 ## 介绍
+<img width="200px" height="200px" alt="logo-圆角" src="https://github.com/user-attachments/assets/0d397f6d-4769-4a4e-a395-d1bb34370fe4" />
+
 - **默认用户名 admin,密码 admin123**
 
 - 基于网盘的开放平台接口来同步生成 STRM、元数据下载、元数据上传，并且提供直链解析服务，不依赖其他项目，目前支持115，未来版本支持123。
