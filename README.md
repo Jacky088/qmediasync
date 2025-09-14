@@ -32,7 +32,7 @@ docker run -d \
   -p 12333:12333 \
   -p 8095:8095 \
   -p 8094:8094 \
-  -v $(pwd)/qmediasync/config:/app/config \
+  -v /vol1/1000/docker/qmediasync/config:/app/config \
   -v /vol1/1000/网盘:/media \
   -e TZ=Asia/Shanghai \
   --restart unless-stopped \
