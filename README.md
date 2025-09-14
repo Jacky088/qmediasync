@@ -6,22 +6,11 @@
 <img width="200px" height="200px" alt="logo-圆角" src="https://github.com/user-attachments/assets/0d397f6d-4769-4a4e-a395-d1bb34370fe4" />
 
 - **默认用户名 admin,密码 admin123**
+- emby代理端口默认：http-8095  https-8094
 - 基于CD2的本地挂载目录生成strm
-- 基于网盘的开放平台接口来同步生成 STRM、元数据下载、元数据上传，并且提供直链解析服务，不依赖其他项目，目前支持115，未来版本支持123。
-- 原理：定时同步 网盘 的文件树和 本地 文件树 对比：
-  1. 本地存在网盘不存在则删除本地文件或上传到网盘（由设置决定，测试版本不会删除任何文件）
-  2. 本地不存在网盘存在则创建本地文件（STRM 或元数据下载）
-  3. 本地存在且网盘存在，则判断文件是否一致（文件 pick_code 是否相同），一致则不处理，不一致则更新
-- 实测 3W 多文件大概 22T 的库全量同步可能需要30分钟左右（不算元数据下载上传的时间），增量需要30秒到5分钟之内，根据115接口返回速度波动。
-- 定时任务设定不能小于 0.5 小时间隔
-- 上传下载队列都放在内存中，如果停止服务会丢失，没完成的任务下次同步时会继续。
-- 开放平台接口的调用有全局限速，一般不会触发流量限制，如果发生流量限制（返回请求已达上限），会全局暂停30s来规避。每个接口的调用都有三次重试基本可以保证不会出现调用错误；如果在生成目录树时发生接口调用错误则会跳过本次同步（防止出现误删本地文件）
-- 内存占用目前观察不会超过500MB，实际占用取决于资源库的大小因为目录树放到了内存中，如果有上百万个文件，内存占用可能会很高，建议多分几个同步目录，减轻单次同步压力
-
-
-
-## 已知问题
-- ~~infuse+emby无法播放，原因：infuse调用emby进行播放时，emby请求的UserAgent为空，实际播放的UserAgent未知，这时115对下载链接的校验无法通过（播放和请求的UserAgent必须相同），解决方法暂时没有，待后续仔细抓包看一下。~~
+- 基于网盘的开放平台接口来同步生成 STRM
+- 元数据下载、元数据上传，直链解析，不依赖其他项目，目前支持115，未来版本支持123、阿里云盘、百度网盘。
+- 提供emby外网302访问支持（通过代理端口访问emby）
 
 ### 功能列表
 
@@ -41,6 +30,8 @@ mkdir -p {root_dir}/qmediasync/config/libs
 docker run -d \
   --name qmediasync \
   -p 12333:12333 \
+  -p 8095:8095 \
+  -p 8094:8094 \
   -v $(pwd)/qmediasync/config:/app/config \
   -v /vol1/1000/网盘:/media \
   -e TZ=Asia/Shanghai \
@@ -60,6 +51,8 @@ services:
         restart: unless-stopped
         ports:
             - "12333:12333"
+            - "8095:8095"
+            - "8094:8094"
         volumes:
             - /vol1/1000/docker/qmediasync/config:/app/config
             - /vol2/1000/网盘:/media
@@ -100,6 +93,8 @@ docker-compose down
 ## 端口说明
 
 - **12333**: Web 服务端口
+- **8095**: Emby代理接口，http协议
+- **8094**: Emby代理接口，https协议
 
 ## 版本标签
 
@@ -109,62 +104,23 @@ docker-compose down
 ## 首次使用
 
 1. 启动容器后访问: http://your-ip:12333
-2. 默认登录信息需要查看日志或配置文件
-3. 登录后进行 115 账号配置
+2. 默认登录用户：admin，默认密码：admin123
+3. 如果不是很了解，所有配置全部保持默认值
+4. 如果要使用网盘：系统设置-网盘账号管理-添加账号，添加完后在下放的卡片中点击授权按钮进行授权
+5. 在同步-同步目录，点击添加同步目录
+6. 添加完成后，下放卡片列表会显示新添加的同步目录
+7. 如果该目录内的资源变动概率较小，建议关闭定时同步，在变动时手动点击 启动同步
 
-## 数据备份
+## 数据
 
-重要数据位于 `/vol1/1000/docker/qmediasync/config` 目录，请定期备份：
+重要数据位于 `/app/config` 目录，该目录的具体位置由个人映射决定，请定期备份
 
-```bash
-# 备份数据
-cp -r /vol1/1000/docker/qmediasync/config /vol1/1000/docker/qmediasync/config-backup-$(date +%Y%m%d)
-```
+## FAQ
 
-## 故障排查
-
-### 查看日志
-
-```bash
-# 查看容器日志
-docker logs qmediasync
-
-# 查看应用日志
-docker exec qmediasync ls -la /app/config/logs/
-```
-
-### 重启服务
-
-```bash
-# 重启容器
-docker restart qmediasync
-
-# 或使用docker-compose
-docker-compose restart
-```
-
-### 更新镜像
-
-```bash
-# 停止并删除旧容器
-docker stop qmediasync && docker rm qmediasync
-
-# 拉取最新镜像
-docker pull qicfan/115strm:latest
-
-# 重新启动
-docker run -d \
-  --name qmediasync \
-  -p 12333:12333 \
-  -v $(pwd)/qmediasync/config:/app/config \
-  -v $(pwd)/qmediasync/data:/app/data \
-  -v $(pwd)/qmediasync/logs:/app/config/logs \
-  -e TZ=Asia/Shanghai \
-  --restart unless-stopped \
-  qicfan/qmediasync:latest
-```
-
-
+- 如果有服务无法启动或者运行逻辑始终不对，建议删除/app/config/db.db，然后重启容器，注意：该操作会清除所有数据
+- /app/config/logs下的内容可以删除，不影响运行
+- /app/config/libs下的内容如果删除，会影响网页查看同步详情，但是不影响其他逻辑，如果磁盘空间有限，可以删除
+- emby外网302目前使用8095和8094端口，暂时不能变动
 
 
 
