@@ -3,7 +3,7 @@
 - QQ群：1057459156
 
 ## 介绍
-<img width="200px" height="200px" alt="logo-圆角" src="https://github.com/user-attachments/assets/0d397f6d-4769-4a4e-a395-d1bb34370fe4" />
+<img width="200" height="200" alt="icon-200" src="https://github.com/user-attachments/assets/937ab06a-4ade-47a4-9e76-a628fd00d3f5" />
 
 - **默认用户名 admin,密码 admin123**
 - emby代理端口默认：http-8095  https-8094
