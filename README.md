@@ -136,6 +136,8 @@ docker-compose down
 6. 添加完成后，下放卡片列表会显示新添加的同步目录
 7. 如果该目录内的资源变动概率较小，建议关闭定时同步，在变动时手动点击 启动同步
 
+具体可以看该帖子：[https://club.fnnas.com/forum.php?mod=viewthread&tid=38393&extra=page%3D1](https://club.fnnas.com/forum.php?mod=viewthread&tid=38393&extra=page%3D1)
+
 ## 数据
 
 重要数据位于 `/app/config` 目录，该目录的具体位置由个人映射决定，请定期备份
