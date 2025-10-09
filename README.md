@@ -4,6 +4,7 @@
 
 ## 介绍
 - **默认用户名 admin,密码 admin123**
+- 默认端口：http-12333   https-12332
 - emby代理端口默认：http-8095  https-8094
 - 支持的同步源：
   - CD2本地挂载
@@ -31,6 +32,8 @@
 - 支持windows，linux，macos可执行文件直接运行
 - 支持docker镜像运行
 - 支持amd64和arm64架构
+- https支持
+
 ## 缺点：
 - 由于使用开放平台接口，所以每次同步其实都全量查询了115文件列表，所以速度天生不可能快
 - 由于速度不可能快，所以增加了缓存，所有增量同步都是基于缓存的；所以导致的结果是无法感知到115的文件夹重命名或者移动，当然不影响文件的新增和改动
@@ -55,6 +58,7 @@ mkdir -p {root_dir}/qmediasync/config/libs
 docker run -d \
   --name qmediasync \
   -p 12333:12333 \
+  -p 12332:12332 \
   -p 8095:8095 \
   -p 8094:8094 \
   -v /vol1/1000/docker/qmediasync/config:/app/config \
@@ -76,6 +80,7 @@ services:
         restart: unless-stopped
         ports:
             - "12333:12333"
+            - "12332:12332"
             - "8095:8095"
             - "8094:8094"
         volumes:
@@ -117,7 +122,8 @@ docker-compose down
 
 ## 端口说明
 
-- **12333**: Web 服务端口
+- **12333**: HTTP 服务端口
+- **12332**: HTTPS 服务端口
 - **8095**: Emby代理接口，http协议
 - **8094**: Emby代理接口，https协议
 
@@ -141,6 +147,19 @@ docker-compose down
 ## 数据
 
 重要数据位于 `/app/config` 目录，该目录的具体位置由个人映射决定，请定期备份
+
+## SSL支持
+- 将server.crt和server.key放入/app/config目录（这是容器内目录，要放到对应的宿主机目录内）
+- server.crt要包含完整证书链，如果用acme.sh，则参考如下命令
+```bash
+acme.sh --install-cert -d your_domain \
+--cert-file      /mnt/docker/qmediasync/config/server.cert  \
+--key-file       /mnt/docker/qmediasync/config/server.key  \
+--fullchain-file /mnt/docker/qmediasync/config/server.crt \
+```
+- 上面的/mnt/docker/qmediasync/config替换为你docker配置中的目录
+- 然后https监听在12332端口，http服务监听在12333端口
+- STRM设置-STRM直连地址 建议已然使用12333的http服务，因为不对外服务，所以兼容性更高
 
 ## FAQ
 
