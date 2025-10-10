@@ -198,8 +198,6 @@ services:
 extra_hosts:
   - "your_domain:qmediasync_ip或宿主机ip"
 ```
-    
-   
 
 ## FAQ
 
@@ -215,8 +213,8 @@ extra_hosts:
 - 建议115qps设置为：下载qps-5，接口qps-3    经过测试，这是最稳定的配置。
 
 
-
-
+## 请作者喝杯咖啡
+![请作者喝杯咖啡](https://github.com/qicfan/qmediasync/blob/main/%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98%E5%AE%9D.jpg?raw=true)
 
 
 
