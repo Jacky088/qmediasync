@@ -179,7 +179,7 @@ services:
         container_name: qmediasync
         restart: unless-stopped
         extra_hosts:
-          - "your_domain: 127.0.0.1"
+          - "your_domain:127.0.0.1"
         ports:
             - "12333:12333"
             - "12332:12332"
@@ -196,7 +196,7 @@ services:
     - 如果使用容器部署，需要给compose中增加下面的设置，或者在容器设置中增加
 ```
 extra_hosts:
-  - "your_domain: qmediasync_ip或宿主机ip
+  - "your_domain:qmediasync_ip或宿主机ip"
 ```
     
    
