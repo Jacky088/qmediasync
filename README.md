@@ -160,6 +160,35 @@ acme.sh --install-cert -d your_domain \
 - 上面的/mnt/docker/qmediasync/config替换为你docker配置中的目录
 - 然后https监听在12332端口，http服务监听在12333端口
 - STRM设置-STRM直连地址 建议已然使用12333的http服务，因为不对外服务，所以兼容性更高
+- 目前证书变更后不会热更新，请手动重启容器或服务
+
+## 115网盘多设备支持
+- 目前内置两个115开放平台App ID，一个App Id可以授权两个设备，总共可以支持4台设备
+- 如果已然不够，可以自己申请App Id，本项目支持自定义App Id，路径：网盘账号管理 - 添加账号 - 网盘类型：115网盘 - 开放平台应用：自定义 - App Id: 输入自己申请的App ID
+- 多设备可以共用一套Strm和元数据
+  - strm设置 - strm直连地址: 这里输入 **http://your_domain:12333**，可以是假域名，使用方自己做hosts
+  - 指定一台设备为主设备，主设备生成strm，然后使用同步工具（比如：微力同步）将生成的strm和元数据同步到其他设备
+  - 其他设备添加网盘账号即可，注意：网盘账号ID必须和主设备的网盘账号ID相同，比如都是1
+  - 每台设备创建docker容器时，使用如下compose，主要是增加了your_domain的hosts，如果你有自己的域名且可以解析就忽略下面
+```
+services:
+    qmediasync:
+        image: qicfan/qmediasync:latest
+        container_name: qmediasync
+        restart: unless-stopped
+        extra_hosts:
+          - "your_domain: 127.0.0.1"
+        ports:
+            - "12333:12333"
+            - "12332:12332"
+            - "8095:8095"
+            - "8094:8094"
+        volumes:
+            - /vol1/1000/docker/qmediasync/config:/app/config
+            - /vol2/1000/网盘:/media
+        environment:
+            - TZ=Asia/Shanghai
+```
 
 ## FAQ
 
