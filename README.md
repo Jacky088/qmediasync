@@ -191,6 +191,15 @@ services:
         environment:
             - TZ=Asia/Shanghai
 ```
+  - 如果使用emby，且未使用外网302，需要让emby也能访问到your_domain
+    - 如果是宿主机直接安装，需要给/etc/hosts或者windows的hosts文件中加入一行：127.0.0.1 your_domain
+    - 如果使用容器部署，需要给compose中增加下面的设置，或者在容器设置中增加
+```
+extra_hosts:
+  - "your_domain: qmediasync_ip或宿主机ip
+```
+    
+   
 
 ## FAQ
 
